@@ -160,20 +160,71 @@ KESTRA_URL=http://localhost:8080
 
 ## 📖 Architecture
 
+AgentMesh provides **three ways** to use the MCP server:
+
+### 1. Desktop App (Recommended)
+```
+┌─────────────────────────────────────────────────────────┐
+│                 AgentMesh Desktop (Tauri)               │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │  MCP Server │  │  Cline CLI  │  │  Tool UI    │     │
+│  │  (Built-in) │──│  (Local)    │──│  Dashboard  │     │
+│  └─────────────┘  └─────────────┘  └─────────────┘     │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 2. GitHub Action + Kestra Pipeline
+```
+┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
+│  GitHub  │───▶│  Action  │───▶│  Kestra  │───▶│  Cline   │
+│  Event   │    │  Trigger │    │  AI Agent│    │  (Runner)│
+└──────────┘    └──────────┘    └──────────┘    └──────────┘
+```
+
+### 3. Local MCP Server
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │  MCP Client     │────▶│   AgentMesh     │────▶│   Cline CLI     │
 │  (Claude, etc)  │     │   (XMCP Server) │     │   (AI Agent)    │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │  External Services  │
-                    │  - Vercel           │
-                    │  - CodeRabbit       │
-                    │  - Kestra           │
-                    └─────────────────────┘
 ```
+
+## 🖥️ Desktop App
+
+The AgentMesh Desktop app provides a native GUI for running the MCP server locally with full Cline CLI support.
+
+### Features
+- **Start/Stop MCP Server** with one click
+- **Execute tools** with visual feedback
+- **Real-time logs** display
+- **Cline CLI status** indicator
+
+### Build Desktop App
+
+```bash
+cd desktop
+pnpm install
+pnpm tauri:dev    # Development
+pnpm tauri:build  # Production build
+```
+
+Requires [Rust](https://rustup.rs/) and [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites).
+
+## 🔄 GitHub Action
+
+AgentMesh includes a GitHub Action that automatically analyzes your repository on every push/PR:
+
+```yaml
+# .github/workflows/code-intelligence.yml
+# Triggers automatically on push/PR to main
+```
+
+### What it does:
+1. **Fetches** open issues, PRs, and recent commits
+2. **Analyzes** repository health with AI
+3. **Triggers Kestra** workflow for automated fixes (if configured)
+4. **Posts summary** as PR comment
 
 ## 🎬 Demo
 
