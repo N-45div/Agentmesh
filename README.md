@@ -22,67 +22,138 @@ AgentMesh is a **Model Context Protocol (MCP) server** that unifies multiple AI 
 
 ```mermaid
 graph TB
-    subgraph UserLayer["� User Layer"]
-        Claude["Claude Desktop"]
-        CustomApp["Custom AI Apps"]
-        DesktopApp["AgentMesh Desktop"]
-        Browser["Web Browser"]
+    subgraph "User Layer"
+        Claude[Claude Desktop]
+        CustomApp[Custom AI Apps]
+        Desktop[AgentMesh Desktop]
     end
 
-    subgraph ApplicationLayer["🖥️ Application Layer"]
-        subgraph Frontend["Frontend"]
-            Dashboard["Dashboard UI"]
-            ToolExplorer["Tool Explorer"]
-            LogViewer["Log Viewer"]
+    subgraph "Application Layer"
+        subgraph "Desktop App - Tauri"
+            Dashboard[Dashboard UI]
+            ToolExplorer[Tool Explorer]
+            LogViewer[Log Viewer]
         end
-    end
 
-    subgraph ServerLayer["⚡ Server Layer - XMCP"]
-        subgraph MCPServer["MCP Server"]
-            Protocol["MCP Protocol Handler"]
-            ToolRegistry["Tool Registry"]
-            RequestRouter["Request Router"]
-        end
-        
-        subgraph ServiceLayer["Service Layer"]
-            ClineService["Cline Service"]
-            WorkflowEngine["Workflow Engine"]
-            EvalService["Evaluation Service"]
-        end
-    end
-
-    subgraph IntegrationLayer["🔌 Integration Layer"]
-        subgraph ClineCLI["Cline CLI"]
-            CodeGen["Code Generation"]
-            CodeReview["Code Review"]
-            TestGen["Test Generation"]
-            SecurityAudit["Security Audit"]
-        end
-        
-        subgraph KestraAI["Kestra AI"]
-            DataFetch["Data Fetcher"]
-            AISummarizer["AI Summarizer"]
-            DecisionEngine["Decision Engine"]
-        end
-        
-        subgraph OumiJudge["Oumi Judge"]
-            Analyzer["Content Analyzer"]
-            Scorer["Quality Scorer"]
-            Reporter["Report Generator"]
+        subgraph "MCP Server - XMCP"
+            MCPHandler[MCP Protocol Handler<br/>/mcp endpoint]
+            ToolRegistry[Tool Registry<br/>15+ tools]
+            
+            subgraph "Service Layer"
+                ClineService[Cline Service]
+                WorkflowService[Workflow Service]
+                EvalService[Evaluation Service]
+            end
+            
+            RequestRouter[Request Router]
+            ErrorHandler[Error Handler]
         end
     end
 
-    subgraph ExternalServices["☁️ External Services"]
-        GitHub["GitHub API"]
-        Vercel["Vercel Deploy"]
-        OpenAI["OpenAI API"]
+    subgraph "Integration Layer"
+        subgraph "Cline CLI"
+            CodeTask[code_task<br/>Code Generation]
+            ReviewCode[review_code<br/>Code Review]
+            GenTests[generate_tests<br/>Test Generation]
+            SecAudit[security_audit<br/>Security Scan]
+            GitAssist[git_assist<br/>Git Operations]
+        end
+
+        subgraph "Kestra AI"
+            DataFetcher[Data Fetcher<br/>GitHub API]
+            AISummarizer[AI Summarizer<br/>GPT-4]
+            DecisionEngine[Decision Engine]
+        end
+
+        subgraph "Oumi Judge"
+            ContentAnalyzer[Content Analyzer]
+            QualityScorer[Quality Scorer<br/>5 Criteria]
+            ReportGen[Report Generator]
+        end
+
+        VercelDeploy[Vercel Deploy<br/>Preview/Production]
     end
 
-    UserLayer --> ApplicationLayer
-    ApplicationLayer --> MCPServer
-    MCPServer --> ServiceLayer
-    ServiceLayer --> IntegrationLayer
-    IntegrationLayer --> ExternalServices
+    subgraph "External Services"
+        GitHubAPI[GitHub API<br/>Issues, PRs, Commits]
+        VercelAPI[Vercel API]
+        OpenAIAPI[OpenAI API<br/>GPT-4]
+        KestraServer[Kestra Server<br/>Workflow Engine]
+    end
+
+    %% User interactions
+    Claude -->|MCP Protocol| MCPHandler
+    CustomApp -->|MCP Protocol| MCPHandler
+    Desktop -->|HTTP| MCPHandler
+
+    %% Desktop App connections
+    Dashboard --> ToolRegistry
+    ToolExplorer --> ToolRegistry
+    LogViewer --> ErrorHandler
+
+    %% MCP Server routing
+    MCPHandler --> ToolRegistry
+    ToolRegistry --> RequestRouter
+    RequestRouter --> ClineService
+    RequestRouter --> WorkflowService
+    RequestRouter --> EvalService
+
+    %% Service to Integration
+    ClineService --> CodeTask
+    ClineService --> ReviewCode
+    ClineService --> GenTests
+    ClineService --> SecAudit
+    ClineService --> GitAssist
+    WorkflowService --> DataFetcher
+    WorkflowService --> DecisionEngine
+    EvalService --> ContentAnalyzer
+
+    %% Kestra flow
+    DataFetcher --> AISummarizer
+    AISummarizer --> DecisionEngine
+    DecisionEngine --> ClineService
+
+    %% Oumi flow
+    ContentAnalyzer --> QualityScorer
+    QualityScorer --> ReportGen
+
+    %% External connections
+    DataFetcher --> GitHubAPI
+    AISummarizer --> OpenAIAPI
+    VercelDeploy --> VercelAPI
+    WorkflowService --> KestraServer
+    ContentAnalyzer --> OpenAIAPI
+
+    %% Styling
+    style Claude fill:#fff,stroke:#000,color:#000
+    style CustomApp fill:#fff,stroke:#000,color:#000
+    style Desktop fill:#fff,stroke:#000,color:#000
+    style Dashboard fill:#fff,stroke:#000,color:#000
+    style ToolExplorer fill:#fff,stroke:#000,color:#000
+    style LogViewer fill:#fff,stroke:#000,color:#000
+    style MCPHandler fill:#fff,stroke:#000,color:#000
+    style ToolRegistry fill:#fff,stroke:#000,color:#000
+    style ClineService fill:#fff,stroke:#000,color:#000
+    style WorkflowService fill:#fff,stroke:#000,color:#000
+    style EvalService fill:#fff,stroke:#000,color:#000
+    style RequestRouter fill:#fff,stroke:#000,color:#000
+    style ErrorHandler fill:#fff,stroke:#000,color:#000
+    style CodeTask fill:#fff,stroke:#000,color:#000
+    style ReviewCode fill:#fff,stroke:#000,color:#000
+    style GenTests fill:#fff,stroke:#000,color:#000
+    style SecAudit fill:#fff,stroke:#000,color:#000
+    style GitAssist fill:#fff,stroke:#000,color:#000
+    style DataFetcher fill:#fff,stroke:#000,color:#000
+    style AISummarizer fill:#fff,stroke:#000,color:#000
+    style DecisionEngine fill:#fff,stroke:#000,color:#000
+    style ContentAnalyzer fill:#fff,stroke:#000,color:#000
+    style QualityScorer fill:#fff,stroke:#000,color:#000
+    style ReportGen fill:#fff,stroke:#000,color:#000
+    style VercelDeploy fill:#fff,stroke:#000,color:#000
+    style GitHubAPI fill:#fff,stroke:#000,color:#000
+    style VercelAPI fill:#fff,stroke:#000,color:#000
+    style OpenAIAPI fill:#fff,stroke:#000,color:#000
+    style KestraServer fill:#fff,stroke:#000,color:#000
 ```
 
 ## 🛠️ Available Tools
