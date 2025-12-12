@@ -90,35 +90,22 @@ graph TB
 AgentMesh integrates with **Kestra** for intelligent workflow orchestration and AI-powered data summarization.
 
 ```mermaid
-flowchart LR
-    subgraph Input["📥 Data Sources"]
-        GH["GitHub API"]
-        Issues["Issues"]
-        PRs["Pull Requests"]
-        Commits["Commits"]
-    end
+sequenceDiagram
+    participant GH as GitHub
+    participant K as Kestra
+    participant AI as AI Agent
+    participant AM as AgentMesh
+    participant C as Cline CLI
     
-    subgraph Kestra["🔄 Kestra Workflow"]
-        Fetch["Fetch Data"]
-        AI["AI Summarization"]
-        Decision["Decision Engine"]
-    end
-    
-    subgraph Output["📤 Actions"]
-        Cline["Cline Execute"]
-        Report["Generate Report"]
-        Alert["Send Alerts"]
-    end
-    
-    GH --> Fetch
-    Issues --> Fetch
-    PRs --> Fetch
-    Commits --> Fetch
-    Fetch --> AI
-    AI --> Decision
-    Decision --> Cline
-    Decision --> Report
-    Decision --> Alert
+    GH->>K: Webhook (PR/Push)
+    K->>GH: Fetch Issues, PRs, Commits
+    GH-->>K: Repository Data
+    K->>AI: Summarize & Analyze
+    AI-->>K: Priority Actions
+    K->>AM: Execute Decision
+    AM->>C: Run Task
+    C-->>AM: Result
+    AM-->>K: Completion Status
 ```
 
 ### How It Works
@@ -145,38 +132,19 @@ See [`kestra/agentmesh-code-intel.yml`](./kestra/agentmesh-code-intel.yml) for t
 AgentMesh uses **Oumi's LLM-as-a-Judge** to evaluate and score all tool outputs:
 
 ```mermaid
-flowchart TB
-    subgraph Input["🔧 Tool Execution"]
-        Cline["Cline Output"]
-        Workflow["Workflow Result"]
-        Code["Generated Code"]
-    end
+sequenceDiagram
+    participant U as User
+    participant AM as AgentMesh
+    participant C as Cline CLI
+    participant O as Oumi Judge
     
-    subgraph Judge["⚖️ Oumi Judge"]
-        Analyze["Analyze Content"]
-        Score["Calculate Scores"]
-        Feedback["Generate Feedback"]
-    end
-    
-    subgraph Criteria["📊 Evaluation Criteria"]
-        Quality["Code Quality"]
-        Security["Security"]
-        Performance["Performance"]
-        Correctness["Correctness"]
-        Maintainability["Maintainability"]
-    end
-    
-    subgraph Output["📋 Results"]
-        Report["Evaluation Report"]
-        Recommendations["Recommendations"]
-        ScoreCard["Score Card"]
-    end
-    
-    Input --> Analyze
-    Analyze --> Criteria
-    Criteria --> Score
-    Score --> Feedback
-    Feedback --> Output
+    U->>AM: Request (code_task)
+    AM->>C: Execute Task
+    C-->>AM: Generated Code
+    AM->>O: Evaluate Output
+    O->>O: Score Quality, Security, Performance
+    O-->>AM: Evaluation Report (8/10)
+    AM-->>U: Code + Quality Score
 ```
 
 ### Evaluation Criteria
@@ -279,33 +247,11 @@ KESTRA_URL=http://localhost:8080
 
 AgentMesh provides **three ways** to use the MCP server:
 
-```mermaid
-graph LR
-    subgraph Option1["🖥️ Desktop App"]
-        D1["Tauri App"] --> D2["Built-in MCP Server"]
-        D2 --> D3["Local Cline CLI"]
-    end
-    
-    subgraph Option2["🔄 CI/CD Pipeline"]
-        C1["GitHub Event"] --> C2["GitHub Action"]
-        C2 --> C3["Kestra Workflow"]
-        C3 --> C4["Self-hosted Runner"]
-    end
-    
-    subgraph Option3["🌐 Local Server"]
-        L1["MCP Client"] --> L2["AgentMesh Server"]
-        L2 --> L3["Cline CLI"]
-    end
-```
-
-### Option 1: Desktop App (Recommended)
-Native GUI with built-in MCP server and Cline CLI integration.
-
-### Option 2: CI/CD Pipeline
-Automated code intelligence on every push/PR via GitHub Actions + Kestra.
-
-### Option 3: Local MCP Server
-Connect any MCP client (Claude Desktop, custom apps) to the server.
+| Option | Best For | How It Works |
+|--------|----------|--------------|
+| 🖥️ **Desktop App** | Daily development | Native GUI with built-in MCP server |
+| 🔄 **CI/CD Pipeline** | Automated workflows | GitHub Actions + Kestra on every push/PR |
+| 🌐 **Local Server** | Custom integrations | Connect any MCP client (Claude, etc.) |
 
 ## 🖥️ Desktop App
 
@@ -346,30 +292,6 @@ AgentMesh includes a GitHub Action that automatically analyzes your repository o
 ## 🎬 Demo
 
 [Watch the demo video](https://youtube.com/your-demo-link)
-
-## 📝 Example Use Cases
-
-### 1. Code Review Pipeline
-```
-User: "Review the authentication module for security issues"
-AgentMesh → Cline CLI → Security audit + Code review → Actionable feedback
-```
-
-### 2. Feature Development
-```
-User: "Add user authentication with JWT"
-AgentMesh → agent_workflow (full-feature) → Plan → Code → Test → Review
-```
-
-### 3. Deploy to Production
-```
-User: "Deploy the latest changes to production"
-AgentMesh → vercel_deploy (production) → Live URL
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our contributing guidelines and submit PRs.
 
 ## 📄 License
 
