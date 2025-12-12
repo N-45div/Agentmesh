@@ -1,33 +1,60 @@
 # 🤖 AgentMesh
 
-> **AI Agents Assemble Hackathon Submission**
+> **Unified AI Agent Orchestration Platform**
 > 
-> An MCP server that exposes Cline CLI capabilities as tools, enabling any MCP-compatible AI assistant to leverage autonomous coding agents.
+> Connect any MCP-compatible AI assistant to autonomous coding agents, workflow orchestration, and intelligent code evaluation.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/agentmesh)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/N-45div/Agentmesh)
 [![Oumi](https://img.shields.io/badge/Oumi-LLM--as--Judge-purple)](https://oumi.ai)
+[![Kestra](https://img.shields.io/badge/Kestra-Workflow-blue)](https://kestra.io)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## 🎯 What is AgentMesh?
 
-AgentMesh bridges the gap between AI assistants and autonomous coding agents. It wraps the powerful [Cline CLI](https://github.com/cline/cline) in an MCP (Model Context Protocol) server, allowing any MCP-compatible client to:
+AgentMesh is a **Model Context Protocol (MCP) server** that unifies multiple AI capabilities into a single, powerful platform:
 
-- Execute coding tasks autonomously
-- Review and refactor code
-- Generate tests and documentation
-- Perform security audits
-- Deploy to Vercel
-- Orchestrate multi-step workflows
+- 🤖 **Autonomous Coding** - Execute complex coding tasks via Cline CLI
+- 🔄 **Workflow Orchestration** - Intelligent pipelines with Kestra AI
+- 🎯 **Quality Evaluation** - LLM-as-a-Judge scoring with Oumi
+- 🚀 **One-Click Deployment** - Deploy anywhere with Vercel integration
 
-## 🏆 Hackathon Prizes Targeted
+## 📐 System Architecture
 
-| Prize | Sponsor | How AgentMesh Qualifies |
-|-------|---------|------------------------|
-| **Infinity Build Award** ($5,000) | Cline | Core integration with Cline CLI |
-| **Wakanda Data Award** ($4,000) | Kestra | AI Agent summarizes GitHub data → triggers Cline |
-| **Stormbreaker Deployment** ($2,000) | Vercel | Live deployment + Vercel tools |
-| **Oumi Award** ($2,000) | Oumi | LLM-as-a-Judge for evaluating tool outputs |
-
-**Total Potential: $12,000** 🎯
+```mermaid
+graph TB
+    subgraph Clients["🖥️ MCP Clients"]
+        Claude["Claude Desktop"]
+        Custom["Custom AI Apps"]
+        Desktop["AgentMesh Desktop"]
+    end
+    
+    subgraph AgentMesh["⚡ AgentMesh Server"]
+        MCP["MCP Protocol Layer"]
+        Tools["Tool Registry"]
+        Router["Request Router"]
+    end
+    
+    subgraph Integrations["🔌 Integrations"]
+        Cline["Cline CLI"]
+        Kestra["Kestra Workflows"]
+        Oumi["Oumi Judge"]
+        Vercel["Vercel Deploy"]
+    end
+    
+    subgraph Actions["🎬 Actions"]
+        Code["Code Generation"]
+        Review["Code Review"]
+        Test["Test Generation"]
+        Security["Security Audit"]
+        Deploy["Deployment"]
+    end
+    
+    Clients --> MCP
+    MCP --> Tools
+    Tools --> Router
+    Router --> Integrations
+    Integrations --> Actions
+```
 
 ## 🛠️ Available Tools
 
@@ -60,26 +87,46 @@ AgentMesh bridges the gap between AI assistants and autonomous coding agents. It
 
 ## 🧠 Kestra AI Integration
 
-AgentMesh features a powerful **Kestra Code Intelligence Pipeline** that:
+AgentMesh integrates with **Kestra** for intelligent workflow orchestration and AI-powered data summarization.
 
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   GitHub     │───▶│   Kestra     │───▶│  AI Agent    │───▶│    Cline     │
-│   Data       │    │  Workflow    │    │  Summarize   │    │   Execute    │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-     │                    │                    │                    │
-     │                    │                    │                    │
-  Issues, PRs         Orchestrate          "3 bugs,            Auto-fix
-  Commits, CI         Data Flow            1 security          & Deploy
-                                           issue"
+```mermaid
+flowchart LR
+    subgraph Input["📥 Data Sources"]
+        GH["GitHub API"]
+        Issues["Issues"]
+        PRs["Pull Requests"]
+        Commits["Commits"]
+    end
+    
+    subgraph Kestra["🔄 Kestra Workflow"]
+        Fetch["Fetch Data"]
+        AI["AI Summarization"]
+        Decision["Decision Engine"]
+    end
+    
+    subgraph Output["📤 Actions"]
+        Cline["Cline Execute"]
+        Report["Generate Report"]
+        Alert["Send Alerts"]
+    end
+    
+    GH --> Fetch
+    Issues --> Fetch
+    PRs --> Fetch
+    Commits --> Fetch
+    Fetch --> AI
+    AI --> Decision
+    Decision --> Cline
+    Decision --> Report
+    Decision --> Alert
 ```
 
 ### How It Works
 
-1. **Data Collection**: Kestra fetches issues, PRs, and commits from GitHub
-2. **AI Summarization**: Kestra's AI Agent analyzes and summarizes the data
-3. **Decision Making**: AI decides what actions to take based on priorities
-4. **Execution**: Triggers Cline via AgentMesh to execute fixes automatically
+1. **Data Collection** - Kestra fetches issues, PRs, and commits from GitHub
+2. **AI Summarization** - Kestra's AI Agent analyzes and summarizes the data
+3. **Decision Making** - AI decides what actions to take based on priorities
+4. **Execution** - Triggers Cline via AgentMesh to execute fixes automatically
 
 ### Quick Start with Kestra
 
@@ -97,20 +144,39 @@ See [`kestra/agentmesh-code-intel.yml`](./kestra/agentmesh-code-intel.yml) for t
 
 AgentMesh uses **Oumi's LLM-as-a-Judge** to evaluate and score all tool outputs:
 
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Cline      │───▶│   Tool       │───▶│   Oumi       │───▶│   Score &    │
-│   Execute    │    │   Output     │    │   Judge      │    │   Feedback   │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
-                                              │
-                                              ▼
-                                    ┌──────────────────┐
-                                    │  Evaluation      │
-                                    │  - Code Quality  │
-                                    │  - Security      │
-                                    │  - Correctness   │
-                                    │  - Performance   │
-                                    └──────────────────┘
+```mermaid
+flowchart TB
+    subgraph Input["🔧 Tool Execution"]
+        Cline["Cline Output"]
+        Workflow["Workflow Result"]
+        Code["Generated Code"]
+    end
+    
+    subgraph Judge["⚖️ Oumi Judge"]
+        Analyze["Analyze Content"]
+        Score["Calculate Scores"]
+        Feedback["Generate Feedback"]
+    end
+    
+    subgraph Criteria["📊 Evaluation Criteria"]
+        Quality["Code Quality"]
+        Security["Security"]
+        Performance["Performance"]
+        Correctness["Correctness"]
+        Maintainability["Maintainability"]
+    end
+    
+    subgraph Output["📋 Results"]
+        Report["Evaluation Report"]
+        Recommendations["Recommendations"]
+        ScoreCard["Score Card"]
+    end
+    
+    Input --> Analyze
+    Analyze --> Criteria
+    Criteria --> Score
+    Score --> Feedback
+    Feedback --> Output
 ```
 
 ### Evaluation Criteria
@@ -209,37 +275,37 @@ OPENAI_API_KEY=your-openai-key  # For Oumi judge model
 KESTRA_URL=http://localhost:8080
 ```
 
-## 📖 Architecture
+## 📖 Deployment Options
 
 AgentMesh provides **three ways** to use the MCP server:
 
-### 1. Desktop App (Recommended)
-```
-┌─────────────────────────────────────────────────────────┐
-│                 AgentMesh Desktop (Tauri)               │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
-│  │  MCP Server │  │  Cline CLI  │  │  Tool UI    │     │
-│  │  (Built-in) │──│  (Local)    │──│  Dashboard  │     │
-│  └─────────────┘  └─────────────┘  └─────────────┘     │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph LR
+    subgraph Option1["🖥️ Desktop App"]
+        D1["Tauri App"] --> D2["Built-in MCP Server"]
+        D2 --> D3["Local Cline CLI"]
+    end
+    
+    subgraph Option2["🔄 CI/CD Pipeline"]
+        C1["GitHub Event"] --> C2["GitHub Action"]
+        C2 --> C3["Kestra Workflow"]
+        C3 --> C4["Self-hosted Runner"]
+    end
+    
+    subgraph Option3["🌐 Local Server"]
+        L1["MCP Client"] --> L2["AgentMesh Server"]
+        L2 --> L3["Cline CLI"]
+    end
 ```
 
-### 2. GitHub Action + Kestra Pipeline
-```
-┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
-│  GitHub  │───▶│  Action  │───▶│  Kestra  │───▶│  Cline   │
-│  Event   │    │  Trigger │    │  AI Agent│    │  (Runner)│
-└──────────┘    └──────────┘    └──────────┘    └──────────┘
-```
+### Option 1: Desktop App (Recommended)
+Native GUI with built-in MCP server and Cline CLI integration.
 
-### 3. Local MCP Server
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  MCP Client     │────▶│   AgentMesh     │────▶│   Cline CLI     │
-│  (Claude, etc)  │     │   (XMCP Server) │     │   (AI Agent)    │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-```
+### Option 2: CI/CD Pipeline
+Automated code intelligence on every push/PR via GitHub Actions + Kestra.
+
+### Option 3: Local MCP Server
+Connect any MCP client (Claude Desktop, custom apps) to the server.
 
 ## 🖥️ Desktop App
 
@@ -319,4 +385,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-Built with ❤️ for the **AI Agents Assemble Hackathon** (Dec 8-14, 2025)
+Built with ❤️ using [XMCP](https://xmcp.dev), [Cline](https://github.com/cline/cline), [Kestra](https://kestra.io), and [Oumi](https://oumi.ai)
