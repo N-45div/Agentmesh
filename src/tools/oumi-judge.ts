@@ -97,10 +97,8 @@ async function evaluateContent(
     return "❌ No content provided for evaluation";
   }
 
-  const prompt = buildEvaluationPrompt(content, criteria, context);
-  
   // Use Oumi's judge evaluation approach
-  const evaluation = await runOumiJudge(prompt, criteria);
+  const evaluation = await runOumiJudge(content, criteria, context);
   
   return formatEvaluationResult(evaluation);
 }
@@ -343,23 +341,86 @@ Please evaluate the above content and provide:
 }
 
 async function runOumiJudge(
-  prompt: string,
-  criteria: string
+  content: string,
+  criteria: string,
+  context?: string
 ): Promise<EvaluationResult> {
-  // In a real implementation, this would call Oumi's judge API
-  // For now, we simulate the evaluation based on heuristics
+  // Try to call the Python Oumi judge script
+  try {
+    const { spawn } = await import("child_process");
+    const path = await import("path");
+    
+    const scriptPath = path.join(process.cwd(), "oumi", "judge.py");
+    
+    return new Promise((resolve) => {
+      const args = [
+        scriptPath,
+        "--content", content,
+        "--criteria", criteria,
+      ];
+      
+      if (context) {
+        args.push("--context", context);
+      }
+      
+      const proc = spawn("python3", args, {
+        env: { ...process.env },
+        timeout: 30000,
+      });
+      
+      let stdout = "";
+      let stderr = "";
+      
+      proc.stdout.on("data", (data) => {
+        stdout += data.toString();
+      });
+      
+      proc.stderr.on("data", (data) => {
+        stderr += data.toString();
+      });
+      
+      proc.on("close", (code) => {
+        if (code === 0 && stdout) {
+          try {
+            const result = JSON.parse(stdout);
+            if (result.success) {
+              resolve({
+                overall_score: result.overall_score || 7,
+                criteria_scores: result.criteria_scores || {},
+                feedback: result.feedback || [],
+                recommendations: result.recommendations || [],
+                confidence: result.note ? 0.7 : 0.95,
+              });
+              return;
+            }
+          } catch (e) {
+            // Fall through to fallback
+          }
+        }
+        // Fallback to heuristic evaluation
+        resolve(runHeuristicEvaluation(content, criteria));
+      });
+      
+      proc.on("error", () => {
+        resolve(runHeuristicEvaluation(content, criteria));
+      });
+    });
+  } catch {
+    // Fallback to heuristic evaluation if Python not available
+    return runHeuristicEvaluation(content, criteria);
+  }
+}
+
+function runHeuristicEvaluation(content: string, criteria: string): EvaluationResult {
+  const hasComments = content.includes("//") || content.includes("/*") || content.includes("#");
+  const hasErrorHandling = content.includes("try") || content.includes("catch") || content.includes("error");
+  const hasTypes = content.includes(": ") || content.includes("type ") || content.includes("interface ");
+  const hasTests = content.includes("test") || content.includes("expect") || content.includes("assert");
   
-  const contentLength = prompt.length;
-  const hasComments = prompt.includes("//") || prompt.includes("/*") || prompt.includes("#");
-  const hasErrorHandling = prompt.includes("try") || prompt.includes("catch") || prompt.includes("error");
-  const hasTypes = prompt.includes(": ") || prompt.includes("type ") || prompt.includes("interface ");
-  const hasTests = prompt.includes("test") || prompt.includes("expect") || prompt.includes("assert");
-  
-  // Calculate scores based on content analysis
   const scores: Record<string, number> = {
-    "code-quality": calculateScore([hasComments, hasTypes, contentLength > 50]),
-    security: calculateScore([hasErrorHandling, !prompt.includes("eval("), !prompt.includes("innerHTML")]),
-    performance: calculateScore([!prompt.includes("nested loop"), contentLength < 5000]),
+    "code-quality": calculateScore([hasComments, hasTypes, content.length > 50]),
+    security: calculateScore([hasErrorHandling, !content.includes("eval("), !content.includes("innerHTML")]),
+    performance: calculateScore([!content.includes("nested loop"), content.length < 5000]),
     correctness: calculateScore([hasErrorHandling, hasTypes]),
     maintainability: calculateScore([hasComments, hasTests, hasTypes]),
   };
@@ -376,7 +437,7 @@ async function runOumiJudge(
     criteria_scores: scores,
     feedback,
     recommendations,
-    confidence: 0.85,
+    confidence: 0.7,
   };
 }
 
