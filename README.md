@@ -5,7 +5,7 @@
 > An MCP server that exposes Cline CLI capabilities as tools, enabling any MCP-compatible AI assistant to leverage autonomous coding agents.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/agentmesh)
-[![CodeRabbit](https://img.shields.io/badge/CodeRabbit-Enabled-orange)](https://coderabbit.ai)
+[![Oumi](https://img.shields.io/badge/Oumi-LLM--as--Judge-purple)](https://oumi.ai)
 
 ## 🎯 What is AgentMesh?
 
@@ -25,7 +25,7 @@ AgentMesh bridges the gap between AI assistants and autonomous coding agents. It
 | **Infinity Build Award** ($5,000) | Cline | Core integration with Cline CLI |
 | **Wakanda Data Award** ($4,000) | Kestra | AI Agent summarizes GitHub data → triggers Cline |
 | **Stormbreaker Deployment** ($2,000) | Vercel | Live deployment + Vercel tools |
-| **Captain Code Award** ($1,000) | CodeRabbit | PR review integration |
+| **Oumi Award** ($2,000) | Oumi | LLM-as-a-Judge for evaluating tool outputs |
 
 **Total Potential: $12,000** 🎯
 
@@ -49,7 +49,7 @@ AgentMesh bridges the gap between AI assistants and autonomous coding agents. It
 | Tool | Description |
 |------|-------------|
 | `vercel_deploy` | Deploy to Vercel (preview/production) |
-| `coderabbit_review` | Trigger CodeRabbit PR reviews |
+| `oumi_judge` | LLM-as-a-Judge for rating outputs |
 | `scaffold_project` | Scaffold new projects with AI |
 
 ### Workflow Orchestration
@@ -92,6 +92,57 @@ docker run -p 8080:8080 kestra/kestra:latest server local
 ```
 
 See [`kestra/agentmesh-code-intel.yml`](./kestra/agentmesh-code-intel.yml) for the complete workflow.
+
+## 🎯 Oumi LLM-as-a-Judge Integration
+
+AgentMesh uses **Oumi's LLM-as-a-Judge** to evaluate and score all tool outputs:
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Cline      │───▶│   Tool       │───▶│   Oumi       │───▶│   Score &    │
+│   Execute    │    │   Output     │    │   Judge      │    │   Feedback   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+                                              │
+                                              ▼
+                                    ┌──────────────────┐
+                                    │  Evaluation      │
+                                    │  - Code Quality  │
+                                    │  - Security      │
+                                    │  - Correctness   │
+                                    │  - Performance   │
+                                    └──────────────────┘
+```
+
+### Evaluation Criteria
+
+| Criteria | What It Checks |
+|----------|----------------|
+| **code-quality** | Structure, readability, best practices |
+| **security** | Vulnerabilities, input validation |
+| **performance** | Efficiency, complexity |
+| **correctness** | Logic accuracy, error handling |
+| **maintainability** | Documentation, modularity |
+
+### Usage Example
+
+```bash
+# Evaluate Cline output
+curl -X POST http://127.0.0.1:3001/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "oumi_judge",
+      "arguments": {
+        "action": "evaluate",
+        "content": "function add(a, b) { return a + b; }",
+        "criteria": "all"
+      }
+    }
+  }'
+```
 
 ## 🚀 Quick Start
 
@@ -151,8 +202,8 @@ vercel deploy
 # Optional: Custom Cline CLI path
 CLINE_PATH=/path/to/cline
 
-# For CodeRabbit integration
-GITHUB_TOKEN=your-github-token
+# For Oumi Judge integration
+OPENAI_API_KEY=your-openai-key  # For Oumi judge model
 
 # For Kestra integration
 KESTRA_URL=http://localhost:8080
@@ -263,7 +314,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [Cline](https://github.com/cline/cline) - The autonomous coding agent
 - [XMCP](https://xmcp.dev) - The MCP framework
 - [Vercel](https://vercel.com) - Deployment platform
-- [CodeRabbit](https://coderabbit.ai) - AI code reviews
+- [Oumi](https://oumi.ai) - LLM-as-a-Judge evaluation framework
 - [Kestra](https://kestra.io) - Workflow orchestration
 
 ---
