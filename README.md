@@ -22,38 +22,67 @@ AgentMesh is a **Model Context Protocol (MCP) server** that unifies multiple AI 
 
 ```mermaid
 graph TB
-    subgraph Clients["🖥️ MCP Clients"]
+    subgraph UserLayer["� User Layer"]
         Claude["Claude Desktop"]
-        Custom["Custom AI Apps"]
-        Desktop["AgentMesh Desktop"]
+        CustomApp["Custom AI Apps"]
+        DesktopApp["AgentMesh Desktop"]
+        Browser["Web Browser"]
     end
-    
-    subgraph AgentMesh["⚡ AgentMesh Server"]
-        MCP["MCP Protocol Layer"]
-        Tools["Tool Registry"]
-        Router["Request Router"]
+
+    subgraph ApplicationLayer["🖥️ Application Layer"]
+        subgraph Frontend["Frontend"]
+            Dashboard["Dashboard UI"]
+            ToolExplorer["Tool Explorer"]
+            LogViewer["Log Viewer"]
+        end
     end
-    
-    subgraph Integrations["🔌 Integrations"]
-        Cline["Cline CLI"]
-        Kestra["Kestra Workflows"]
-        Oumi["Oumi Judge"]
+
+    subgraph ServerLayer["⚡ Server Layer - XMCP"]
+        subgraph MCPServer["MCP Server"]
+            Protocol["MCP Protocol Handler"]
+            ToolRegistry["Tool Registry"]
+            RequestRouter["Request Router"]
+        end
+        
+        subgraph ServiceLayer["Service Layer"]
+            ClineService["Cline Service"]
+            WorkflowEngine["Workflow Engine"]
+            EvalService["Evaluation Service"]
+        end
+    end
+
+    subgraph IntegrationLayer["🔌 Integration Layer"]
+        subgraph ClineCLI["Cline CLI"]
+            CodeGen["Code Generation"]
+            CodeReview["Code Review"]
+            TestGen["Test Generation"]
+            SecurityAudit["Security Audit"]
+        end
+        
+        subgraph KestraAI["Kestra AI"]
+            DataFetch["Data Fetcher"]
+            AISummarizer["AI Summarizer"]
+            DecisionEngine["Decision Engine"]
+        end
+        
+        subgraph OumiJudge["Oumi Judge"]
+            Analyzer["Content Analyzer"]
+            Scorer["Quality Scorer"]
+            Reporter["Report Generator"]
+        end
+    end
+
+    subgraph ExternalServices["☁️ External Services"]
+        GitHub["GitHub API"]
         Vercel["Vercel Deploy"]
+        OpenAI["OpenAI API"]
     end
-    
-    subgraph Actions["🎬 Actions"]
-        Code["Code Generation"]
-        Review["Code Review"]
-        Test["Test Generation"]
-        Security["Security Audit"]
-        Deploy["Deployment"]
-    end
-    
-    Clients --> MCP
-    MCP --> Tools
-    Tools --> Router
-    Router --> Integrations
-    Integrations --> Actions
+
+    UserLayer --> ApplicationLayer
+    ApplicationLayer --> MCPServer
+    MCPServer --> ServiceLayer
+    ServiceLayer --> IntegrationLayer
+    IntegrationLayer --> ExternalServices
 ```
 
 ## 🛠️ Available Tools
