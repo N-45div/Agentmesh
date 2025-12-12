@@ -5,7 +5,6 @@
 > Connect any MCP-compatible AI assistant to autonomous coding agents, workflow orchestration, and intelligent code evaluation.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/N-45div/Agentmesh)
-[![Oumi](https://img.shields.io/badge/Oumi-LLM--as--Judge-purple)](https://oumi.ai)
 [![Kestra](https://img.shields.io/badge/Kestra-Workflow-blue)](https://kestra.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -15,7 +14,6 @@ AgentMesh is a **Model Context Protocol (MCP) server** that unifies multiple AI 
 
 - 🤖 **Autonomous Coding** - Execute complex coding tasks via Cline CLI
 - 🔄 **Workflow Orchestration** - Intelligent pipelines with Kestra AI
-- 🎯 **Quality Evaluation** - LLM-as-a-Judge scoring with Oumi
 - 🚀 **One-Click Deployment** - Deploy anywhere with Vercel integration
 
 ## 📐 System Architecture
@@ -42,8 +40,7 @@ graph TB
             subgraph "Service Layer"
                 ClineService[Cline Service]
                 WorkflowService[Workflow Service]
-                EvalService[Evaluation Service]
-            end
+                end
             
             RequestRouter[Request Router]
             ErrorHandler[Error Handler]
@@ -63,12 +60,6 @@ graph TB
             DataFetcher[Data Fetcher<br/>GitHub API]
             AISummarizer[AI Summarizer<br/>GPT-4]
             DecisionEngine[Decision Engine]
-        end
-
-        subgraph "Oumi Judge"
-            ContentAnalyzer[Content Analyzer]
-            QualityScorer[Quality Scorer<br/>5 Criteria]
-            ReportGen[Report Generator]
         end
 
         VercelDeploy[Vercel Deploy<br/>Preview/Production]
@@ -135,7 +126,6 @@ graph TB
     style ToolRegistry fill:#fff,stroke:#000,color:#000
     style ClineService fill:#fff,stroke:#000,color:#000
     style WorkflowService fill:#fff,stroke:#000,color:#000
-    style EvalService fill:#fff,stroke:#000,color:#000
     style RequestRouter fill:#fff,stroke:#000,color:#000
     style ErrorHandler fill:#fff,stroke:#000,color:#000
     style CodeTask fill:#fff,stroke:#000,color:#000
@@ -146,9 +136,6 @@ graph TB
     style DataFetcher fill:#fff,stroke:#000,color:#000
     style AISummarizer fill:#fff,stroke:#000,color:#000
     style DecisionEngine fill:#fff,stroke:#000,color:#000
-    style ContentAnalyzer fill:#fff,stroke:#000,color:#000
-    style QualityScorer fill:#fff,stroke:#000,color:#000
-    style ReportGen fill:#fff,stroke:#000,color:#000
     style VercelDeploy fill:#fff,stroke:#000,color:#000
     style GitHubAPI fill:#fff,stroke:#000,color:#000
     style VercelAPI fill:#fff,stroke:#000,color:#000
@@ -176,7 +163,6 @@ graph TB
 | Tool | Description |
 |------|-------------|
 | `vercel_deploy` | Deploy to Vercel (preview/production) |
-| `oumi_judge` | LLM-as-a-Judge for rating outputs |
 | `scaffold_project` | Scaffold new projects with AI |
 
 ### Workflow Orchestration
@@ -227,56 +213,6 @@ docker run -p 8080:8080 kestra/kestra:latest server local
 
 See [`kestra/agentmesh-code-intel.yml`](./kestra/agentmesh-code-intel.yml) for the complete workflow.
 
-## 🎯 Oumi LLM-as-a-Judge Integration
-
-AgentMesh uses **Oumi's LLM-as-a-Judge** to evaluate and score all tool outputs:
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant AM as AgentMesh
-    participant C as Cline CLI
-    participant O as Oumi Judge
-    
-    U->>AM: Request (code_task)
-    AM->>C: Execute Task
-    C-->>AM: Generated Code
-    AM->>O: Evaluate Output
-    O->>O: Score Quality, Security, Performance
-    O-->>AM: Evaluation Report (8/10)
-    AM-->>U: Code + Quality Score
-```
-
-### Evaluation Criteria
-
-| Criteria | What It Checks |
-|----------|----------------|
-| **code-quality** | Structure, readability, best practices |
-| **security** | Vulnerabilities, input validation |
-| **performance** | Efficiency, complexity |
-| **correctness** | Logic accuracy, error handling |
-| **maintainability** | Documentation, modularity |
-
-### Usage Example
-
-```bash
-# Evaluate Cline output
-curl -X POST http://127.0.0.1:3001/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "tools/call",
-    "params": {
-      "name": "oumi_judge",
-      "arguments": {
-        "action": "evaluate",
-        "content": "function add(a, b) { return a + b; }",
-        "criteria": "all"
-      }
-    }
-  }'
-```
 
 ## 🚀 Quick Start
 
@@ -402,9 +338,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [Cline](https://github.com/cline/cline) - The autonomous coding agent
 - [XMCP](https://xmcp.dev) - The MCP framework
 - [Vercel](https://vercel.com) - Deployment platform
-- [Oumi](https://oumi.ai) - LLM-as-a-Judge evaluation framework
 - [Kestra](https://kestra.io) - Workflow orchestration
 
 ---
 
-Built with ❤️ using [XMCP](https://xmcp.dev), [Cline](https://github.com/cline/cline), [Kestra](https://kestra.io), and [Oumi](https://oumi.ai)
+Built with ❤️ using [XMCP](https://xmcp.dev), [Cline](https://github.com/cline/cline), and [Kestra](https://kestra.io)
