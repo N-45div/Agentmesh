@@ -1,0 +1,96 @@
+id: github_repo_analysis
+namespace: agentmesh
+description: Analyze a GitHub repository - clone, get stats, and provide insights
+
+inputs:
+  - id: repo_url
+    type: STRING
+    description: GitHub repository URL (e.g., https://github.com/owner/repo)
+
+tasks:
+  - id: parse_repo_url
+    type: io.kestra.plugin.core.runner.Script
+    script: |
+      import re
+      repo_url = "{{ inputs.repo_url }}"
+      match = re.match(r'https://github\.com/([^/]+)/([^/]+)', repo_url)
+      if match:
+          owner = match.group(1)
+          repo = match.group(2).replace('.git', '')
+      else:
+          raise ValueError("Invalid GitHub URL")
+    outputFiles:
+      - "*.json"
+
+  - id: clone_repo
+    type: io.kestra.plugin.git.Clone
+    url: "{{ inputs.repo_url }}"
+    branch: main
+
+  - id: analyze_structure
+    type: io.kestra.plugin.scripts.shell.Commands
+    commands:
+      - |
+        echo "=== Repository Analysis ==="
+        echo ""
+        echo "📁 Directory Structure:"
+        find . -type f -name "*.ts" -o -name "*.js" -o -name "*.py" -o -name "*.go" | head -20
+        echo ""
+        echo "📊 File Statistics:"
+        echo "Total files: $(find . -type f | wc -l)"
+        echo "TypeScript files: $(find . -name '*.ts' | wc -l)"
+        echo "JavaScript files: $(find . -name '*.js' | wc -l)"
+        echo "Python files: $(find . -name '*.py' | wc -l)"
+        echo ""
+        echo "📝 README Preview:"
+        if [ -f README.md ]; then
+          head -30 README.md
+        else
+          echo "No README.md found"
+        fi
+        echo ""
+        echo "📦 Dependencies:"
+        if [ -f package.json ]; then
+          echo "Node.js project detected"
+          cat package.json | grep -A 20 '"dependencies"' | head -15
+        elif [ -f requirements.txt ]; then
+          echo "Python project detected"
+          head -10 requirements.txt
+        elif [ -f go.mod ]; then
+          echo "Go project detected"
+          head -10 go.mod
+        fi
+
+  - id: code_quality_check
+    type: io.kestra.plugin.scripts.shell.Commands
+    commands:
+      - |
+        echo "=== Code Quality Analysis ==="
+        echo ""
+        echo "🔍 Potential Issues:"
+        echo ""
+        echo "TODO/FIXME comments:"
+        grep -r "TODO\|FIXME" --include="*.ts" --include="*.js" --include="*.py" . 2>/dev/null | head -10 || echo "None found"
+        echo ""
+        echo "Console.log statements (JS/TS):"
+        grep -r "console\.log" --include="*.ts" --include="*.js" . 2>/dev/null | wc -l || echo "0"
+        echo ""
+        echo "Print statements (Python):"
+        grep -r "^print(" --include="*.py" . 2>/dev/null | wc -l || echo "0"
+
+  - id: generate_summary
+    type: io.kestra.plugin.core.log.Log
+    message: |
+      Repository analysis complete for {{ inputs.repo_url }}
+      
+      Analysis includes:
+      - Directory structure
+      - File statistics
+      - README preview
+      - Dependencies check
+      - Code quality indicators
+
+outputs:
+  - id: analysis_complete
+    type: STRING
+    value: "Analysis completed successfully"

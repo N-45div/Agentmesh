@@ -295,11 +295,77 @@ outputs:
 `;
 }
 
+// Check if Kestra server is running
+async function checkKestraServer(kestraUrl: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${kestraUrl}/api/v1/configs`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+    // 401 means server is running but needs auth - that's still "online"
+    return res.ok || res.status === 401;
+  } catch {
+    return false;
+  }
+}
+
+// Trigger a Kestra flow execution
+async function triggerKestraFlow(
+  kestraUrl: string, 
+  namespace: string, 
+  flowId: string, 
+  inputs: Record<string, string>
+): Promise<{ success: boolean; executionId?: string; error?: string }> {
+  try {
+    const res = await fetch(`${kestraUrl}/api/v1/executions/${namespace}/${flowId}`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      return { success: true, executionId: data.id };
+    } else {
+      const error = await res.text();
+      return { success: false, error };
+    }
+  } catch (error) {
+    return { success: false, error: String(error) };
+  }
+}
+
+// Get Kestra execution status and logs
+async function getKestraExecution(
+  kestraUrl: string, 
+  executionId: string
+): Promise<{ status: string; logs: string[] }> {
+  try {
+    const [execRes, logsRes] = await Promise.all([
+      fetch(`${kestraUrl}/api/v1/executions/${executionId}`),
+      fetch(`${kestraUrl}/api/v1/logs/${executionId}`),
+    ]);
+    
+    const execData = await execRes.json();
+    const logsData = await logsRes.json();
+    
+    return {
+      status: execData.state?.current || 'UNKNOWN',
+      logs: Array.isArray(logsData) ? logsData.map((l: { message: string }) => l.message) : [],
+    };
+  } catch {
+    return { status: 'ERROR', logs: [] };
+  }
+}
+
 export default async function kestraCodeIntel({ 
   action, 
   repoUrl,
   summary,
-  kestraUrl,
+  kestraUrl = "http://localhost:8080",
   workingDirectory 
 }: InferSchema<typeof schema>) {
   
@@ -309,10 +375,13 @@ export default async function kestraCodeIntel({
         return "❌ repoUrl is required for analyze-repo action";
       }
       
-      // Fetch GitHub data
+      // Check if Kestra is running
+      const kestraRunning = await checkKestraServer(kestraUrl);
+      
+      // Fetch GitHub data (always do this - it's real data)
       const data = await fetchGitHubData(repoUrl);
       
-      // Generate AI summary (simulates Kestra AI Agent)
+      // Generate analysis from real GitHub data
       const analysis = generateAISummary(data as {
         repo: { name: string; openIssues: number; language: string };
         issues: { title: string; labels: string[] }[];
@@ -320,7 +389,37 @@ export default async function kestraCodeIntel({
       });
       
       let result = `🔍 **Kestra AI Code Intelligence Report**\n\n`;
-      result += `## Summary\n\`\`\`\n${analysis.summary}\n\`\`\`\n\n`;
+      
+      // Show Kestra status
+      if (kestraRunning) {
+        result += `✅ **Kestra Server**: Connected at ${kestraUrl}\n\n`;
+        
+        // Try to trigger the analysis flow if it exists
+        const flowResult = await triggerKestraFlow(
+          kestraUrl, 
+          'agentmesh', 
+          'github_repo_analysis',
+          { repo_url: repoUrl }
+        );
+        
+        if (flowResult.success) {
+          result += `🚀 **Kestra Flow Triggered**: Execution ID \`${flowResult.executionId}\`\n`;
+          result += `View at: ${kestraUrl}/ui/executions/${flowResult.executionId}\n\n`;
+        } else if (flowResult.error?.includes('401')) {
+          // Auth required - Kestra is running but needs login
+          result += `🔐 **Kestra**: Server running (auth required for API)\n`;
+          result += `View flows at: ${kestraUrl}/ui/flows/agentmesh/github_repo_analysis\n\n`;
+        } else {
+          result += `ℹ️ Kestra flow not imported yet - using direct GitHub analysis\n`;
+          result += `Import flow at: ${kestraUrl}/ui/flows\n\n`;
+        }
+      } else {
+        result += `⚠️ **Kestra Server**: Not running at ${kestraUrl}\n`;
+        result += `To enable full Kestra integration, run:\n`;
+        result += `\`\`\`bash\ndocker run -p 8080:8080 kestra/kestra:latest server local\n\`\`\`\n\n`;
+      }
+      
+      result += `## Repository Analysis (from GitHub API)\n\`\`\`\n${analysis.summary}\n\`\`\`\n\n`;
       
       if (analysis.priorities.length > 0) {
         result += `## Priorities\n`;
@@ -337,8 +436,11 @@ export default async function kestraCodeIntel({
       }
       
       result += `\n## Next Steps\n`;
-      result += `Use \`kestra_code_intel\` with action \`execute-decision\` to automatically fix issues.\n`;
-      result += `Or use \`setup-workflow\` to create a Kestra workflow for continuous monitoring.`;
+      if (kestraRunning) {
+        result += `- View Kestra dashboard: ${kestraUrl}/ui\n`;
+        result += `- Use \`setup-workflow\` to create automated monitoring\n`;
+      }
+      result += `- Use \`execute-decision\` to automatically fix issues via Cline`;
       
       return result;
     }

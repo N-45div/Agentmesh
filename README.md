@@ -1,20 +1,23 @@
 # 🤖 AgentMesh
 
-> **Unified AI Agent Orchestration Platform**
+> **The AI-Powered Software Development Automation Platform**
 > 
-> Connect any MCP-compatible AI assistant to autonomous coding agents, workflow orchestration, and intelligent code evaluation.
+> Orchestrate autonomous coding agents, intelligent workflows, and code quality evaluation through a unified MCP server.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/N-45div/Agentmesh)
-[![Kestra](https://img.shields.io/badge/Kestra-Workflow-blue)](https://kestra.io)
+[![Cline CLI](https://img.shields.io/badge/Cline-CLI-purple)](https://github.com/cline/cline)
+[![Kestra](https://img.shields.io/badge/Kestra-AI_Agent-blue)](https://kestra.io)
+[![Oumi](https://img.shields.io/badge/Oumi-LLM_Judge-orange)](https://github.com/oumi-ai/oumi)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 🎯 What is AgentMesh?
+## � What is AgentMesh?
 
-AgentMesh is a **Model Context Protocol (MCP) server** that unifies multiple AI capabilities into a single, powerful platform:
+AgentMesh is a **Model Context Protocol (MCP) server** that brings together the best AI development tools into one powerful platform:
 
-- 🤖 **Autonomous Coding** - Execute complex coding tasks via Cline CLI
-- 🔄 **Workflow Orchestration** - Intelligent pipelines with Kestra AI
-- 🚀 **One-Click Deployment** - Deploy anywhere with Vercel integration
+- 🤖 **Cline CLI Integration** - Autonomous coding, code review, security audits, and test generation
+- 🔄 **Kestra AI Workflows** - Intelligent pipelines that summarize data and make decisions
+- 🧠 **Oumi LLM-as-a-Judge** - Code quality evaluation with custom judge configurations
+- 🚀 **Vercel Deployment** - One-click deployment to production
 
 ## 📐 System Architecture
 
@@ -279,67 +282,52 @@ OPENAI_API_KEY=your-openai-key  # For Oumi judge model
 KESTRA_URL=http://localhost:8080
 ```
 
-## 📖 Deployment Options
-
-AgentMesh provides **three ways** to use the MCP server:
-
-| Option | Best For | How It Works |
-|--------|----------|--------------|
-| 🖥️ **Desktop App** | Daily development | Native GUI with built-in MCP server |
-| 🔄 **CI/CD Pipeline** | Automated workflows | GitHub Actions + Kestra on every push/PR |
-| 🌐 **Local Server** | Custom integrations | Connect any MCP client (Claude, etc.) |
-
-## 🖥️ Desktop App
-
-The AgentMesh Desktop app provides a native GUI for running the MCP server locally with full Cline CLI support.
-
-### Features
-- **Start/Stop MCP Server** with one click
-- **Execute tools** with visual feedback
-- **Real-time logs** display
-- **Cline CLI status** indicator
-
-### Build Desktop App
-
-```bash
-cd desktop
-pnpm install
-pnpm tauri:dev    # Development
-pnpm tauri:build  # Production build
-```
-
-Requires [Rust](https://rustup.rs/) and [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites).
-
-## 🔄 GitHub Action
-
-AgentMesh includes a GitHub Action that automatically analyzes your repository on every push/PR:
-
-```yaml
-# .github/workflows/code-intelligence.yml
-# Triggers automatically on push/PR to main
-```
-
-### What it does:
-1. **Fetches** open issues, PRs, and recent commits
-2. **Analyzes** repository health with AI
-3. **Triggers Kestra** workflow for automated fixes (if configured)
-4. **Posts summary** as PR comment
-
-## 🎬 Demo
-
-[Watch the demo video](https://youtube.com/your-demo-link)
 
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## 🧠 Oumi LLM-as-a-Judge Integration
+
+As part of AgentMesh submission I contributed configs to the Oumi open-source project.
+
+### Custom Judge Configs
+
+PR link : [Oumi LLM as a judge for Code quality PR](https://github.com/oumi-ai/oumi/pull/12)
+
+Located in `configs/projects/judges/code/`:
+
+| Config | Purpose |
+|--------|---------|
+| `maintainability.yaml` | Evaluates code maintainability, readability, and documentation |
+| `security.yaml` | Assesses security vulnerabilities and best practices |
+| `performance.yaml` | Analyzes performance characteristics and optimizations |
+
+## � CLI Review Script
+
+Run code reviews directly from the command line with output to markdown files:
+
+```bash
+# Code review a file
+./scripts/review.sh review src/lib/cline.ts
+
+# Security audit
+./scripts/review.sh audit .
+
+# Generate tests
+./scripts/review.sh tests src/tools/security-audit.ts
+```
+
+Reviews are saved to `./reviews/` as markdown files with timestamps.
+
+## �🙏 Acknowledgments
 
 - [Cline](https://github.com/cline/cline) - The autonomous coding agent
 - [XMCP](https://xmcp.dev) - The MCP framework
 - [Vercel](https://vercel.com) - Deployment platform
 - [Kestra](https://kestra.io) - Workflow orchestration
+- [Oumi](https://github.com/oumi-ai/oumi) - LLM-as-a-Judge framework
 
 ---
 
-Built with ❤️ using [XMCP](https://xmcp.dev), [Cline](https://github.com/cline/cline), and [Kestra](https://kestra.io)
+Built with ❤️ for the AI Agents Hackathon using [Cline CLI](https://github.com/cline/cline), [Kestra](https://kestra.io), and [Oumi](https://github.com/oumi-ai/oumi)

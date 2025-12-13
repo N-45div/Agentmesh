@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  kestra:
+    image: kestra/kestra:latest
+    container_name: kestra
+    pull_policy: always
+    user: root
+    command: server local
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+      - ./flows:/app/flows
+    environment:
+      - KESTRA_CONFIGURATION_KESTRA_REPOSITORY_TYPE=memory
