@@ -293,7 +293,7 @@ As part of AgentMesh submission I contributed configs to the Oumi open-source pr
 
 ### Custom Judge Configs
 
-PR link : [Oumi LLM as a judge for Code quality PR](https://github.com/oumi-ai/oumi/pull/12)
+PR link : [Oumi LLM as a judge for Code quality PR](https://github.com/oumi-ai/oumi/pull/2087)
 
 Located in `configs/projects/judges/code/`:
 
