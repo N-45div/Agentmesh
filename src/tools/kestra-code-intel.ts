@@ -309,15 +309,19 @@ async function checkKestraServer(kestraUrl: string): Promise<boolean> {
   }
 }
 
-// Trigger a Kestra flow execution
+// Trigger a Kestra flow execution via webhook (no auth required)
 async function triggerKestraFlow(
   kestraUrl: string, 
   namespace: string, 
   flowId: string, 
   inputs: Record<string, string>
 ): Promise<{ success: boolean; executionId?: string; error?: string }> {
+  // Use webhook trigger - doesn't require authentication
+  const webhookKey = 'agentmesh-github-analysis';
+  const webhookUrl = `${kestraUrl}/api/v1/executions/webhook/${namespace}/${flowId}/${webhookKey}`;
+  
   try {
-    const res = await fetch(`${kestraUrl}/api/v1/executions/${namespace}/${flowId}`, {
+    const res = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -331,7 +335,7 @@ async function triggerKestraFlow(
       return { success: true, executionId: data.id };
     } else {
       const error = await res.text();
-      return { success: false, error };
+      return { success: false, error: `${res.status}: ${error}` };
     }
   } catch (error) {
     return { success: false, error: String(error) };
@@ -394,12 +398,17 @@ export default async function kestraCodeIntel({
       if (kestraRunning) {
         result += `✅ **Kestra Server**: Connected at ${kestraUrl}\n\n`;
         
-        // Try to trigger the analysis flow if it exists
+        // Parse owner/repo from URL for Kestra flow inputs
+        const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+        const owner = match ? match[1] : 'N-45div';
+        const repo = match ? match[2].replace('.git', '') : 'Agentmesh';
+        
+        // Try to trigger the analysis flow via webhook
         const flowResult = await triggerKestraFlow(
           kestraUrl, 
           'agentmesh', 
           'github_repo_analysis',
-          { repo_url: repoUrl }
+          { owner, repo }
         );
         
         if (flowResult.success) {

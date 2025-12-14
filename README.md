@@ -1,314 +1,150 @@
 # 🤖 AgentMesh
 
-> **The AI-Powered Software Development Automation Platform**
+> **AI-Powered Repository Intelligence & Automation Platform**
 > 
 > Orchestrate autonomous coding agents, intelligent workflows, and code quality evaluation through a unified MCP server.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/N-45div/Agentmesh)
 [![Cline CLI](https://img.shields.io/badge/Cline-CLI-purple)](https://github.com/cline/cline)
 [![Kestra](https://img.shields.io/badge/Kestra-AI_Agent-blue)](https://kestra.io)
 [![Oumi](https://img.shields.io/badge/Oumi-LLM_Judge-orange)](https://github.com/oumi-ai/oumi)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## � What is AgentMesh?
+## 🎯 What is AgentMesh?
 
 AgentMesh is a **Model Context Protocol (MCP) server** that brings together the best AI development tools into one powerful platform:
 
 - 🤖 **Cline CLI Integration** - Autonomous coding, code review, security audits, and test generation
-- 🔄 **Kestra AI Workflows** - Intelligent pipelines that summarize data and make decisions
+- 🔄 **Kestra AI Workflows** - 4-phase intelligent analysis with GitHub data summarization
 - 🧠 **Oumi LLM-as-a-Judge** - Code quality evaluation with custom judge configurations
-- 🚀 **Vercel Deployment** - One-click deployment to production
-
-## 📐 System Architecture
-
-```mermaid
-graph TB
-    subgraph "User Layer"
-        Claude[Claude Desktop]
-        CustomApp[Custom AI Apps]
-        Desktop[AgentMesh Desktop]
-    end
-
-    subgraph "Application Layer"
-        subgraph "Desktop App - Tauri"
-            Dashboard[Dashboard UI]
-            ToolExplorer[Tool Explorer]
-            LogViewer[Log Viewer]
-        end
-
-        subgraph "MCP Server - XMCP"
-            MCPHandler[MCP Protocol Handler<br/>/mcp endpoint]
-            ToolRegistry[Tool Registry<br/>15+ tools]
-            
-            subgraph "Service Layer"
-                ClineService[Cline Service]
-                WorkflowService[Workflow Service]
-                end
-            
-            RequestRouter[Request Router]
-            ErrorHandler[Error Handler]
-        end
-    end
-
-    subgraph "Integration Layer"
-        subgraph "Cline CLI"
-            CodeTask[code_task<br/>Code Generation]
-            ReviewCode[review_code<br/>Code Review]
-            GenTests[generate_tests<br/>Test Generation]
-            SecAudit[security_audit<br/>Security Scan]
-            GitAssist[git_assist<br/>Git Operations]
-        end
-
-        subgraph "Kestra AI"
-            DataFetcher[Data Fetcher<br/>GitHub API]
-            AISummarizer[AI Summarizer<br/>GPT-4]
-            DecisionEngine[Decision Engine]
-        end
-
-        VercelDeploy[Vercel Deploy<br/>Preview/Production]
-    end
-
-    subgraph "External Services"
-        GitHubAPI[GitHub API<br/>Issues, PRs, Commits]
-        VercelAPI[Vercel API]
-        OpenAIAPI[OpenAI API<br/>GPT-4]
-        KestraServer[Kestra Server<br/>Workflow Engine]
-    end
-
-    %% User interactions
-    Claude -->|MCP Protocol| MCPHandler
-    CustomApp -->|MCP Protocol| MCPHandler
-    Desktop -->|HTTP| MCPHandler
-
-    %% Desktop App connections
-    Dashboard --> ToolRegistry
-    ToolExplorer --> ToolRegistry
-    LogViewer --> ErrorHandler
-
-    %% MCP Server routing
-    MCPHandler --> ToolRegistry
-    ToolRegistry --> RequestRouter
-    RequestRouter --> ClineService
-    RequestRouter --> WorkflowService
-    RequestRouter --> EvalService
-
-    %% Service to Integration
-    ClineService --> CodeTask
-    ClineService --> ReviewCode
-    ClineService --> GenTests
-    ClineService --> SecAudit
-    ClineService --> GitAssist
-    WorkflowService --> DataFetcher
-    WorkflowService --> DecisionEngine
-    EvalService --> ContentAnalyzer
-
-    %% Kestra flow
-    DataFetcher --> AISummarizer
-    AISummarizer --> DecisionEngine
-    DecisionEngine --> ClineService
-
-    %% Oumi flow
-    ContentAnalyzer --> QualityScorer
-    QualityScorer --> ReportGen
-
-    %% External connections
-    DataFetcher --> GitHubAPI
-    AISummarizer --> OpenAIAPI
-    VercelDeploy --> VercelAPI
-    WorkflowService --> KestraServer
-    ContentAnalyzer --> OpenAIAPI
-
-    %% Styling
-    style Claude fill:#fff,stroke:#000,color:#000
-    style CustomApp fill:#fff,stroke:#000,color:#000
-    style Desktop fill:#fff,stroke:#000,color:#000
-    style Dashboard fill:#fff,stroke:#000,color:#000
-    style ToolExplorer fill:#fff,stroke:#000,color:#000
-    style LogViewer fill:#fff,stroke:#000,color:#000
-    style MCPHandler fill:#fff,stroke:#000,color:#000
-    style ToolRegistry fill:#fff,stroke:#000,color:#000
-    style ClineService fill:#fff,stroke:#000,color:#000
-    style WorkflowService fill:#fff,stroke:#000,color:#000
-    style RequestRouter fill:#fff,stroke:#000,color:#000
-    style ErrorHandler fill:#fff,stroke:#000,color:#000
-    style CodeTask fill:#fff,stroke:#000,color:#000
-    style ReviewCode fill:#fff,stroke:#000,color:#000
-    style GenTests fill:#fff,stroke:#000,color:#000
-    style SecAudit fill:#fff,stroke:#000,color:#000
-    style GitAssist fill:#fff,stroke:#000,color:#000
-    style DataFetcher fill:#fff,stroke:#000,color:#000
-    style AISummarizer fill:#fff,stroke:#000,color:#000
-    style DecisionEngine fill:#fff,stroke:#000,color:#000
-    style VercelDeploy fill:#fff,stroke:#000,color:#000
-    style GitHubAPI fill:#fff,stroke:#000,color:#000
-    style VercelAPI fill:#fff,stroke:#000,color:#000
-    style OpenAIAPI fill:#fff,stroke:#000,color:#000
-    style KestraServer fill:#fff,stroke:#000,color:#000
-```
-
-## 🛠️ Available Tools
-
-### Core Cline Tools
-| Tool | Description |
-|------|-------------|
-| `cline_status` | Check Cline CLI installation status |
-| `code_task` | Execute any coding task with Cline |
-| `review_code` | AI-powered code review |
-| `fix_issues` | Automatically fix code issues |
-| `generate_tests` | Generate unit/integration tests |
-| `security_audit` | Perform security vulnerability scan |
-| `explain_code` | Get AI explanations of code |
-| `refactor` | Refactor code for better quality |
-| `generate_docs` | Generate documentation |
-| `git_assist` | AI-assisted Git operations |
-
-### Deployment & CI/CD
-| Tool | Description |
-|------|-------------|
-| `vercel_deploy` | Deploy to Vercel (preview/production) |
-| `scaffold_project` | Scaffold new projects with AI |
-
-### Workflow Orchestration
-| Tool | Description |
-|------|-------------|
-| `agent_workflow` | Multi-step AI agent pipelines |
-| `kestra_code_intel` | Kestra AI Agent for code intelligence |
-
-## 🧠 Kestra AI Integration
-
-AgentMesh integrates with **Kestra** for intelligent workflow orchestration and AI-powered data summarization.
-
-```mermaid
-sequenceDiagram
-    participant GH as GitHub
-    participant K as Kestra
-    participant AI as AI Agent
-    participant AM as AgentMesh
-    participant C as Cline CLI
-    
-    GH->>K: Webhook (PR/Push)
-    K->>GH: Fetch Issues, PRs, Commits
-    GH-->>K: Repository Data
-    K->>AI: Summarize & Analyze
-    AI-->>K: Priority Actions
-    K->>AM: Execute Decision
-    AM->>C: Run Task
-    C-->>AM: Result
-    AM-->>K: Completion Status
-```
-
-### How It Works
-
-1. **Data Collection** - Kestra fetches issues, PRs, and commits from GitHub
-2. **AI Summarization** - Kestra's AI Agent analyzes and summarizes the data
-3. **Decision Making** - AI decides what actions to take based on priorities
-4. **Execution** - Triggers Cline via AgentMesh to execute fixes automatically
-
-### Quick Start with Kestra
-
-```bash
-# Start Kestra
-docker run -p 8080:8080 kestra/kestra:latest server local
-
-# Import the workflow
-# Copy kestra/agentmesh-code-intel.yml to Kestra UI
-```
-
-See [`kestra/agentmesh-code-intel.yml`](./kestra/agentmesh-code-intel.yml) for the complete workflow.
-
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Node.js 18+
-- [Cline CLI](https://github.com/cline/cline) installed and configured
-- pnpm (recommended)
-
-### Installation
-
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/agentmesh.git
+# Clone and install
+git clone https://github.com/N-45div/Agentmesh.git
 cd agentmesh
-
-# Install dependencies
 pnpm install
 
-# Start development server
+# Start MCP server
 pnpm dev
+
+# Start Kestra (in another terminal)
+cd kestra && docker-compose up -d
 ```
 
-The MCP server will be running at `http://127.0.0.1:3001/mcp`
+MCP Server: `http://localhost:3001/mcp`
+Kestra UI: `http://localhost:8080`
 
-### Test the Server
+## 📐 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        MCP CLIENTS                              │
+│         (Claude Desktop, Windsurf, Custom Apps)                 │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ MCP Protocol
+                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    AGENTMESH MCP SERVER                         │
+│                    (http://localhost:3001/mcp)                  │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │  Cline CLI   │  │ Kestra Intel │  │  Oumi Judge  │          │
+│  │   Tools      │  │    Tool      │  │    Tool      │          │
+│  └──────┬───────┘  └──────┬───────┘  └──────────────┘          │
+└─────────┼─────────────────┼─────────────────────────────────────┘
+          │                 │
+          ▼                 ▼
+┌──────────────────┐  ┌──────────────────────────────────────────┐
+│    CLINE CLI     │  │           KESTRA SERVER                  │
+│  (Autonomous     │  │        (http://localhost:8080)           │
+│   Coding Agent)  │  ├──────────────────────────────────────────┤
+│                  │  │  Phase 1: Data Collection (GitHub API)   │
+│  • code_task     │  │  Phase 2: Security & Health Analysis     │
+│  • review_code   │  │  Phase 3: AI-Powered Insights            │
+│  • security_audit│  │  Phase 4: AgentMesh Integration          │
+│  • generate_tests│  └──────────────────────────────────────────┘
+│  • fix_issues    │
+└──────────────────┘
+```
+
+## 🔄 Kestra AI Integration
+
+AgentMesh includes an advanced **4-phase GitHub repository analysis** workflow powered by Kestra:
+
+### The Flow
+
+```
+MCP Tool Call → Kestra Webhook → 4-Phase Analysis → Results
+```
+
+### Phase Breakdown
+
+| Phase | What It Does |
+|-------|--------------|
+| **Phase 1: Data Collection** | Fetches repo metadata, commits, issues, PRs, contributors, languages |
+| **Phase 2: Security Analysis** | Scans for security issues, bugs, stale PRs |
+| **Phase 3: AI Insights** | Generates health scores and priority decision matrix |
+| **Phase 4: AgentMesh Integration** | Routes actions to Cline CLI for automated fixes |
+
+### Trigger via MCP
 
 ```bash
-# List available tools
-curl -X POST http://127.0.0.1:3001/mcp \
+# Trigger Kestra analysis for any GitHub repo
+curl -X POST http://localhost:3001/mcp \
   -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-
-# Check Cline status
-curl -X POST http://127.0.0.1:3001/mcp \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"cline_status","arguments":{}}}'
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "kestra_code_intel",
+      "arguments": {
+        "action": "analyze-repo",
+        "repoUrl": "https://github.com/owner/repo"
+      }
+    }
+  }'
 ```
 
-## 🌐 Deploy to Vercel
+### Start Kestra
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel deploy
+cd kestra
+docker-compose up -d
+# Open http://localhost:8080
+# Import kestra/flows/github-analysis.yaml
 ```
 
-## 🔧 Configuration
+## 🛠️ Available MCP Tools
 
-### Environment Variables
+| Tool | Description |
+|------|-------------|
+| `cline_status` | Check Cline CLI installation |
+| `code_task` | Execute coding tasks with Cline |
+| `review_code` | AI-powered code review |
+| `security_audit` | Security vulnerability scan |
+| `generate_tests` | Generate unit/integration tests |
+| `fix_issues` | Auto-fix code issues |
+| `refactor` | Refactor for better quality |
+| `kestra_code_intel` | Trigger Kestra GitHub analysis |
 
-```bash
-# Optional: Custom Cline CLI path
-CLINE_PATH=/path/to/cline
+## 🧠 Oumi LLM-as-a-Judge
 
-# For Oumi Judge integration
-OPENAI_API_KEY=your-openai-key  # For Oumi judge model
+Contributed custom judge configs to the Oumi open-source project for code quality evaluation.
 
-# For Kestra integration
-KESTRA_URL=http://localhost:8080
-```
-
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-## 🧠 Oumi LLM-as-a-Judge Integration
-
-As part of AgentMesh submission I contributed configs to the Oumi open-source project.
-
-### Custom Judge Configs
-
-PR link : [Oumi LLM as a judge for Code quality PR](https://github.com/oumi-ai/oumi/pull/2087)
-
-Located in `configs/projects/judges/code/`:
+**PR**: [Oumi LLM as a judge for Code quality](https://github.com/oumi-ai/oumi/pull/2087)
 
 | Config | Purpose |
 |--------|---------|
-| `maintainability.yaml` | Evaluates code maintainability, readability, and documentation |
-| `security.yaml` | Assesses security vulnerabilities and best practices |
-| `performance.yaml` | Analyzes performance characteristics and optimizations |
+| `maintainability.yaml` | Code maintainability and readability |
+| `security.yaml` | Security vulnerabilities and best practices |
+| `performance.yaml` | Performance characteristics |
 
-## � CLI Review Script
-
-Run code reviews directly from the command line with output to markdown files:
+## 📝 CLI Review Script
 
 ```bash
-# Code review a file
+# Code review
 ./scripts/review.sh review src/lib/cline.ts
 
 # Security audit
@@ -318,16 +154,27 @@ Run code reviews directly from the command line with output to markdown files:
 ./scripts/review.sh tests src/tools/security-audit.ts
 ```
 
-Reviews are saved to `./reviews/` as markdown files with timestamps.
+Reviews saved to `./reviews/` as markdown files.
 
-## �🙏 Acknowledgments
+## 🔧 Configuration
 
-- [Cline](https://github.com/cline/cline) - The autonomous coding agent
-- [XMCP](https://xmcp.dev) - The MCP framework
-- [Vercel](https://vercel.com) - Deployment platform
+```bash
+# Environment variables
+KESTRA_URL=http://localhost:8080
+CLINE_PATH=/path/to/cline  # Optional
+```
+
+## 📄 License
+
+MIT License
+
+## 🙏 Acknowledgments
+
+- [Cline](https://github.com/cline/cline) - Autonomous coding agent
 - [Kestra](https://kestra.io) - Workflow orchestration
 - [Oumi](https://github.com/oumi-ai/oumi) - LLM-as-a-Judge framework
+- [XMCP](https://xmcp.dev) - MCP framework
 
 ---
 
-Built with ❤️ for the AI Agents Hackathon using [Cline CLI](https://github.com/cline/cline), [Kestra](https://kestra.io), and [Oumi](https://github.com/oumi-ai/oumi)
+Built with ❤️ for the AI Agents Hackathon

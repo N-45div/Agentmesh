@@ -14,4 +14,10 @@ services:
       - /tmp:/tmp
       - ./flows:/app/flows
     environment:
-      - KESTRA_CONFIGURATION_KESTRA_REPOSITORY_TYPE=memory
+      KESTRA_CONFIGURATION: |
+        kestra:
+          repository:
+            type: memory
+          security:
+            basic-auth:
+              enabled: false
